@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { Download, RotateCcw } from 'lucide-react';
-import { CHEMISTRY_PRESETS, DEFAULT_PROCESS_CONFIG } from '../config/processConfig';
+import { CHEMISTRY_PRESETS, DEFAULT_PROCESS_CONFIG, isValidAlarmConfig } from '../config/processConfig';
 import type { ProcessConfig } from '../types/process';
 import { exportConfigToJson } from '../utils/exportData';
 
@@ -8,33 +9,35 @@ interface ParametersViewProps {
   onChange: (next: ProcessConfig) => void;
 }
 
-export function ParametersView({ config, onChange }: ParametersViewProps) {
+export function ParametersView({ config: appliedConfig, onChange }: ParametersViewProps) {
+  const [config, setDraft] = useState(appliedConfig);
+  const valid = isValidAlarmConfig(config);
   const updateChemistry = <K extends keyof ProcessConfig['chemistry']>(
     key: K,
     value: ProcessConfig['chemistry'][K]
   ) => {
-    onChange({ ...config, chemistry: { ...config.chemistry, [key]: value } });
+    setDraft({ ...config, chemistry: { ...config.chemistry, [key]: value } });
   };
 
   const updateIndustrial = <K extends keyof ProcessConfig['industrial']>(
     key: K,
     value: ProcessConfig['industrial'][K]
   ) => {
-    onChange({ ...config, industrial: { ...config.industrial, [key]: value } });
+    setDraft({ ...config, industrial: { ...config.industrial, [key]: value } });
   };
 
   const updateMath = <K extends keyof ProcessConfig['mathModel']>(
     key: K,
     value: ProcessConfig['mathModel'][K]
   ) => {
-    onChange({ ...config, mathModel: { ...config.mathModel, [key]: value } });
+    setDraft({ ...config, mathModel: { ...config.mathModel, [key]: value } });
   };
 
   const updateElectrical = <K extends keyof ProcessConfig['electrical']>(
     key: K,
     value: ProcessConfig['electrical'][K]
   ) => {
-    onChange({ ...config, electrical: { ...config.electrical, [key]: value } });
+    setDraft({ ...config, electrical: { ...config.electrical, [key]: value } });
   };
 
   const inputClass =
@@ -46,25 +49,30 @@ export function ParametersView({ config, onChange }: ParametersViewProps) {
       <div className="flex flex-col gap-3 rounded-[6px] border border-[#D6D3C9] bg-[#FAF9F5] p-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-[#78756C]">
-            CANLI KONFİGÜRASYON
+            PROSES AYARLARI
           </span>
           <h3 className="text-sm font-semibold text-[#181816]">
             Disiplinlere Göre Proses Parametreleri
           </h3>
           <p className="text-xs text-[#64625A]">
-            Grup arkadaşlarınız kendi verilerini paylaştığında buradan girip tüm sistemi anında güncelleyebilirsiniz.
+            Kimya profilleri demo varsayımıdır. Değişiklikler Uygula düğmesiyle devreye girer.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          <button type="button" onClick={() => onChange(config)}
+            disabled={!valid || config === appliedConfig}
+            className="rounded border border-[#181816] px-3 py-1.5 text-xs disabled:opacity-50">
+            Uygula
+          </button>
           <button
-            onClick={() => exportConfigToJson(config)}
+            onClick={() => exportConfigToJson(appliedConfig)}
             className="flex items-center gap-1.5 rounded-[4px] border border-[#181816] bg-[#181816] px-3 py-1.5 text-xs font-medium text-white hover:bg-[#31312C]"
           >
             <Download className="h-3.5 w-3.5" />
             JSON Dışa Aktar
           </button>
           <button
-            onClick={() => onChange(DEFAULT_PROCESS_CONFIG)}
+            onClick={() => setDraft(DEFAULT_PROCESS_CONFIG)}
             className="flex items-center gap-1.5 rounded-[4px] border border-[#CCC9BE] bg-white px-3 py-1.5 text-xs font-medium text-[#35342F] hover:border-[#181816]"
           >
             <RotateCcw className="h-3.5 w-3.5" />
@@ -72,6 +80,14 @@ export function ParametersView({ config, onChange }: ParametersViewProps) {
           </button>
         </div>
       </div>
+
+      {!valid && (
+        <p role="alert" className="text-sm text-[#A81C28]">
+          Eşikler sayısal ve sıralı olmalı, optimum hedef bantta ve pH 0–14 aralığında kalmalı.
+          Histerezis sıfır veya pozitif ve bant genişliğinin yarısından küçük olmalı.
+          Ardışık ölçüm sayısı en az 1, örnekleme en az 500 ms ve anomali eşiği pozitif olmalı.
+        </p>
+      )}
 
       {/* Chemical Presets */}
       <div className="rounded-[6px] border border-[#D6D3C9] bg-[#FAF9F5] p-4">
@@ -84,7 +100,7 @@ export function ParametersView({ config, onChange }: ParametersViewProps) {
             return (
               <button
                 key={preset.presetId}
-                onClick={() => onChange({ ...config, chemistry: preset })}
+                onClick={() => setDraft({ ...config, chemistry: preset })}
                 className={`rounded-[4px] border p-3 text-left transition ${
                   active
                     ? 'border-[#181816] bg-white shadow-sm'
@@ -134,8 +150,8 @@ export function ParametersView({ config, onChange }: ParametersViewProps) {
               <input
                 type="number"
                 step="0.5"
-                value={config.chemistry.tempMin}
-                onChange={(e) => updateChemistry('tempMin', Number(e.target.value))}
+                value={Number.isNaN(config.chemistry.tempMin) ? "" : config.chemistry.tempMin}
+                onChange={(e) => updateChemistry('tempMin', e.currentTarget.valueAsNumber)}
                 className={inputClass}
               />
             </div>
@@ -144,8 +160,8 @@ export function ParametersView({ config, onChange }: ParametersViewProps) {
               <input
                 type="number"
                 step="0.5"
-                value={config.chemistry.tempMax}
-                onChange={(e) => updateChemistry('tempMax', Number(e.target.value))}
+                value={Number.isNaN(config.chemistry.tempMax) ? "" : config.chemistry.tempMax}
+                onChange={(e) => updateChemistry('tempMax', e.currentTarget.valueAsNumber)}
                 className={inputClass}
               />
             </div>
@@ -154,8 +170,8 @@ export function ParametersView({ config, onChange }: ParametersViewProps) {
               <input
                 type="number"
                 step="0.5"
-                value={config.chemistry.tempOptimal}
-                onChange={(e) => updateChemistry('tempOptimal', Number(e.target.value))}
+                value={Number.isNaN(config.chemistry.tempOptimal) ? "" : config.chemistry.tempOptimal}
+                onChange={(e) => updateChemistry('tempOptimal', e.currentTarget.valueAsNumber)}
                 className={inputClass}
               />
             </div>
@@ -164,8 +180,16 @@ export function ParametersView({ config, onChange }: ParametersViewProps) {
               <input
                 type="number"
                 step="0.5"
-                value={config.chemistry.tempCriticalHigh}
-                onChange={(e) => updateChemistry('tempCriticalHigh', Number(e.target.value))}
+                value={Number.isNaN(config.chemistry.tempCriticalHigh) ? "" : config.chemistry.tempCriticalHigh}
+                onChange={(e) => updateChemistry('tempCriticalHigh', e.currentTarget.valueAsNumber)}
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <label htmlFor="tempCriticalLow" className="text-[11px] text-[#64625A]">Kritik Alt Sıcaklık (°C)</label>
+              <input id="tempCriticalLow" type="number" step="0.5"
+                value={Number.isNaN(config.chemistry.tempCriticalLow) ? '' : config.chemistry.tempCriticalLow}
+                onChange={(e) => updateChemistry('tempCriticalLow', e.currentTarget.valueAsNumber)}
                 className={inputClass}
               />
             </div>
@@ -174,8 +198,8 @@ export function ParametersView({ config, onChange }: ParametersViewProps) {
               <input
                 type="number"
                 step="0.1"
-                value={config.chemistry.phMin}
-                onChange={(e) => updateChemistry('phMin', Number(e.target.value))}
+                value={Number.isNaN(config.chemistry.phMin) ? "" : config.chemistry.phMin}
+                onChange={(e) => updateChemistry('phMin', e.currentTarget.valueAsNumber)}
                 className={inputClass}
               />
             </div>
@@ -184,8 +208,8 @@ export function ParametersView({ config, onChange }: ParametersViewProps) {
               <input
                 type="number"
                 step="0.1"
-                value={config.chemistry.phMax}
-                onChange={(e) => updateChemistry('phMax', Number(e.target.value))}
+                value={Number.isNaN(config.chemistry.phMax) ? "" : config.chemistry.phMax}
+                onChange={(e) => updateChemistry('phMax', e.currentTarget.valueAsNumber)}
                 className={inputClass}
               />
             </div>
@@ -194,8 +218,24 @@ export function ParametersView({ config, onChange }: ParametersViewProps) {
               <input
                 type="number"
                 step="0.1"
-                value={config.chemistry.phOptimal}
-                onChange={(e) => updateChemistry('phOptimal', Number(e.target.value))}
+                value={Number.isNaN(config.chemistry.phOptimal) ? "" : config.chemistry.phOptimal}
+                onChange={(e) => updateChemistry('phOptimal', e.currentTarget.valueAsNumber)}
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <label htmlFor="phCriticalHigh" className="text-[11px] text-[#64625A]">Kritik Üst pH</label>
+              <input id="phCriticalHigh" type="number" step="0.1"
+                value={Number.isNaN(config.chemistry.phCriticalHigh) ? '' : config.chemistry.phCriticalHigh}
+                onChange={(e) => updateChemistry('phCriticalHigh', e.currentTarget.valueAsNumber)}
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <label htmlFor="phCriticalLow" className="text-[11px] text-[#64625A]">Kritik Alt pH</label>
+              <input id="phCriticalLow" type="number" step="0.1"
+                value={Number.isNaN(config.chemistry.phCriticalLow) ? '' : config.chemistry.phCriticalLow}
+                onChange={(e) => updateChemistry('phCriticalLow', e.currentTarget.valueAsNumber)}
                 className={inputClass}
               />
             </div>
@@ -318,8 +358,8 @@ export function ParametersView({ config, onChange }: ParametersViewProps) {
               <input
                 type="number"
                 step="0.1"
-                value={config.mathModel.anomalyZThreshold}
-                onChange={(e) => updateMath('anomalyZThreshold', Number(e.target.value))}
+                value={Number.isNaN(config.mathModel.anomalyZThreshold) ? "" : config.mathModel.anomalyZThreshold}
+                onChange={(e) => updateMath('anomalyZThreshold', e.currentTarget.valueAsNumber)}
                 className={inputClass}
               />
             </div>
@@ -341,8 +381,8 @@ export function ParametersView({ config, onChange }: ParametersViewProps) {
                 type="number"
                 min={1}
                 max={10}
-                value={config.electrical.consecutiveBreachLimit}
-                onChange={(e) => updateElectrical('consecutiveBreachLimit', Number(e.target.value))}
+                value={Number.isNaN(config.electrical.consecutiveBreachLimit) ? "" : config.electrical.consecutiveBreachLimit}
+                onChange={(e) => updateElectrical('consecutiveBreachLimit', e.currentTarget.valueAsNumber)}
                 className={inputClass}
               />
             </div>
@@ -353,8 +393,8 @@ export function ParametersView({ config, onChange }: ParametersViewProps) {
                 min={500}
                 max={5000}
                 step={100}
-                value={config.electrical.samplingIntervalMs}
-                onChange={(e) => updateElectrical('samplingIntervalMs', Number(e.target.value))}
+                value={Number.isNaN(config.electrical.samplingIntervalMs) ? "" : config.electrical.samplingIntervalMs}
+                onChange={(e) => updateElectrical('samplingIntervalMs', e.currentTarget.valueAsNumber)}
                 className={inputClass}
               />
             </div>
@@ -363,13 +403,21 @@ export function ParametersView({ config, onChange }: ParametersViewProps) {
               <input
                 type="number"
                 step="0.1"
-                value={config.electrical.hysteresisTemp}
-                onChange={(e) => updateElectrical('hysteresisTemp', Number(e.target.value))}
+                value={Number.isNaN(config.electrical.hysteresisTemp) ? "" : config.electrical.hysteresisTemp}
+                onChange={(e) => updateElectrical('hysteresisTemp', e.currentTarget.valueAsNumber)}
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <label htmlFor="hysteresisPh" className="text-[11px] text-[#64625A]">pH Histerezisi</label>
+              <input id="hysteresisPh" type="number" step="0.01"
+                value={Number.isNaN(config.electrical.hysteresisPh) ? '' : config.electrical.hysteresisPh}
+                onChange={(e) => updateElectrical('hysteresisPh', e.currentTarget.valueAsNumber)}
                 className={inputClass}
               />
             </div>
             <div className="flex items-center justify-between rounded-[4px] border border-[#CCC9BE] bg-white px-3 py-2">
-              <span className="text-xs text-[#2E2D29]">Otomatik Koruma Kilidi</span>
+              <span className="text-xs text-[#2E2D29]">Simüle Koruma Göstergesi</span>
               <input
                 type="checkbox"
                 checked={config.electrical.autoInterlockEnabled}

@@ -53,19 +53,19 @@ export function AlarmPanel({
         <div>
           <span className="block text-[9px] uppercase text-[#78756C]">ISI SAYAÇ</span>
           <span className="mt-0.5 block text-xs font-semibold text-[#181816] tabular-nums">
-            {Math.max(tracker.tempWarning, tracker.tempCritical)}/{limit}
+            {tracker.temperature.count}/{limit}
           </span>
         </div>
         <div>
           <span className="block text-[9px] uppercase text-[#78756C]">pH SAYAÇ</span>
           <span className="mt-0.5 block text-xs font-semibold text-[#181816] tabular-nums">
-            {Math.max(tracker.phWarning, tracker.phCritical)}/{limit}
+            {tracker.ph.count}/{limit}
           </span>
         </div>
         <div>
           <span className="block text-[9px] uppercase text-[#78756C]">ANOMALİ</span>
           <span className="mt-0.5 block text-xs font-semibold text-[#181816] tabular-nums">
-            {tracker.anomalyWarning}/{limit}
+            {tracker.anomaly.count}/{limit}
           </span>
         </div>
       </div>
@@ -97,7 +97,7 @@ export function AlarmPanel({
       <div className="mt-3 space-y-2 overflow-y-auto pr-1" style={{ maxHeight: '360px' }}>
         {filtered.length === 0 ? (
           <div className="rounded-[4px] border border-dashed border-[#CCC9BE] bg-white py-10 text-center">
-            <p className="font-mono text-xs font-medium text-[#4A4842]">AKTİF ALARM YOK</p>
+            <p className="font-mono text-xs font-medium text-[#4A4842]">GÖSTERİLECEK OLAY YOK</p>
             <p className="mx-auto mt-1 max-w-[230px] text-[11px] text-[#78756C]">
               Üstten bir arıza senaryosu seçerek veya sapma enjekte ederek alarm kurallarını test edebilirsiniz.
             </p>
@@ -109,7 +109,7 @@ export function AlarmPanel({
               <div
                 key={alarm.id}
                 className={`rounded-[4px] border border-l-[3px] bg-white p-2.5 transition ${
-                  alarm.acknowledged
+                  alarm.clearedAt !== undefined
                     ? 'border-[#DFDDD4] border-l-[#9E9B90] opacity-60'
                     : isCritical
                       ? 'border-[#E8AEB4] border-l-[#C82333]'
@@ -125,12 +125,17 @@ export function AlarmPanel({
                           : 'bg-[#FDF1DC] text-[#9A5204]'
                       }`}
                     >
-                      {isCritical ? 'KRİTİK' : 'UYARI'}
+                      {alarm.severity === 'data-error' ? 'VERİ HATASI' : isCritical ? 'KRİTİK' : 'UYARI'}
                     </span>
                     <span className="text-xs font-semibold text-[#181816]">{alarm.parameter}</span>
                     <span className="font-mono text-[11px] text-[#4A4842]">{alarm.value}</span>
                   </div>
                   <span className="font-mono text-[10px] text-[#78756C] tabular-nums">
+                    <span className="mr-2">
+                      {alarm.clearedAt === undefined
+                        ? 'AKTİF'
+                        : alarm.clearedReason === 'configuration' ? 'AYAR DEĞİŞTİ' : 'KAPANDI'}
+                    </span>
                     {alarm.timeLabel}
                   </span>
                 </div>

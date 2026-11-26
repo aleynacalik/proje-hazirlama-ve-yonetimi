@@ -60,7 +60,7 @@ export function ReactorVesselCard({ latest, config, isRunning }: ReactorVesselCa
                 : 'border-[#B8D4C7] bg-[#E6EFEA] text-[#1E5641]'
           }`}
         >
-          {interlockTriggered ? 'INTERLOCK AKTİF' : isWarning ? 'DENGELEME' : 'STABİL'}
+          {interlockTriggered ? 'KORUMA SİMÜLASYONU' : isCritical ? 'KRİTİK ÖLÇÜM' : isWarning ? 'DENGELEME' : 'STABİL'}
         </span>
       </div>
 

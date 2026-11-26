@@ -40,3 +40,5 @@ npm run preview
 ## Ekip Veri Toplama Şablonu
 
 Diğer disiplinlerdeki grup arkadaşlarının teslim edeceği parametrelerin özet listesi için [docs/ekip-veri-sablonu.md](docs/ekip-veri-sablonu.md) dosyasına bakın.
+
+[EEM alarm akışı, ayarlar ve demo kontrolü](docs/eem-alarm-akisi.md)
