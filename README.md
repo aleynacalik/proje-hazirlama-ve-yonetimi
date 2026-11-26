@@ -1,5 +1,7 @@
 # ChemFlow Mini MES — Kimyasal Proses Optimizasyonu ve Akıllı İzleme Sistemi
 
+**Canlı Demo (GitHub Pages):** https://aleynacalik.github.io/PROJE-HAZIRLAMA-VE-Y-NET-M-/
+
 **Proje Hazırlama ve Yönetimi Dersi** kapsamında geliştirilen disiplinler arası **Kimyasal Üretim Tesisinde Proses (Sıcaklık/pH) Optimizasyonu ve Akıllı İzleme Sistemi (Mini MES)** web paneli ve simülasyon prototipidir.
 
 ## Disiplinlere Göre Modül Mimarisi
