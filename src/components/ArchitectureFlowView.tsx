@@ -8,8 +8,10 @@ interface ArchitectureFlowViewProps {
 }
 
 export function ArchitectureFlowView({ latest, tracker, config }: ArchitectureFlowViewProps) {
-  const isCritical = latest.overallStatus === 'critical';
-  const isWarning = latest.overallStatus === 'warning';
+  const channels = [tracker.temperature, tracker.ph, tracker.anomaly];
+  const hasFault = channels.some((channel) => channel.faultId);
+  const isCritical = channels.some((channel) => channel.active?.violation.endsWith('critical'));
+  const isWarning = channels.some((channel) => channel.active);
 
   const pipelineStages = [
     {
@@ -23,9 +25,9 @@ export function ArchitectureFlowView({ latest, tracker, config }: ArchitectureFl
     {
       step: '02',
       owner: 'Elektrik-Elektronik',
-      title: 'Veri Toplama & Filtre',
+      title: 'Ölçüm Doğrulama',
       metric: `Δt = ${(config.electrical.samplingIntervalMs / 1000).toFixed(1)} sn`,
-      detail: `Histerezis (±${config.electrical.hysteresisTemp}°C / ±${config.electrical.hysteresisPh} pH) ile gürültü filtrelenir.`,
+      detail: 'Sonlu sıcaklık ve 0–14 aralığında sonlu pH değeri kontrol edilir.',
       highlight: 'border-[#D6D3C9] bg-white text-[#1B4965]',
     },
     {
@@ -39,9 +41,9 @@ export function ArchitectureFlowView({ latest, tracker, config }: ArchitectureFl
     {
       step: '04',
       owner: 'Elektrik-Elektronik',
-      title: 'Alarm & Koruma Mantığı',
-      metric: isCritical ? 'KRİTİK KİLİT' : isWarning ? 'UYARI AKTİF' : 'NORMAL',
-      detail: `Ardışık ${config.electrical.consecutiveBreachLimit} ihlal kuralı ile yalancı alarmlar süzülür.`,
+      title: 'Alarm Mantığı',
+      metric: hasFault ? 'VERİ HATASI' : isCritical ? 'KRİTİK ALARM' : isWarning ? 'UYARI AKTİF' : 'NORMAL',
+      detail: 'Aynı yönde ardışık ölçümler uyarı açar. Histerezis kapanış bandını belirler.',
       highlight: isCritical
         ? 'border-[#C82333] bg-[#FBE6E8] text-[#A81C28]'
         : isWarning
@@ -77,8 +79,8 @@ export function ArchitectureFlowView({ latest, tracker, config }: ArchitectureFl
             </p>
           </div>
           <span className="rounded-[3px] border border-[#D6D3C9] bg-white px-2.5 py-1 font-mono text-[11px] text-[#35342F]">
-            Sayaç: T={Math.max(tracker.tempWarning, tracker.tempCritical)} / pH=
-            {Math.max(tracker.phWarning, tracker.phCritical)}
+            Sayaç: T={tracker.temperature.count} / pH=
+            {tracker.ph.count}
           </span>
         </div>
 
@@ -235,10 +237,7 @@ export function ArchitectureFlowView({ latest, tracker, config }: ArchitectureFl
                     ≤{chemistry.phCriticalLow} veya ≥{chemistry.phCriticalHigh}
                   </td>
                   <td className="py-3 text-[#4A4842]">
-                    Anında kritik alarm,{' '}
-                    {electrical.autoInterlockEnabled
-                      ? 'otomatik koruma kilidi (Interlock)'
-                      : 'acil manuel durdurma'}
+                    İlk geçerli ihlalde kritik alarm kaydı
                   </td>
                 </tr>
               </tbody>

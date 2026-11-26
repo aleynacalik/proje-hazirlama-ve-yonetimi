@@ -84,7 +84,9 @@ export interface AlarmEvent {
   timestamp: number;
   timeLabel: string;
   parameter: 'Sıcaklık' | 'pH' | 'Enerji / Anomali';
-  severity: 'warning' | 'critical';
+  severity: 'warning' | 'critical' | 'data-error';
+  clearedAt?: number;
+  clearedReason?: 'measurement' | 'configuration';
   value: string;
   threshold: string;
   message: string;
@@ -93,12 +95,17 @@ export interface AlarmEvent {
   consecutiveCount: number;
 }
 
+export interface ChannelAlarmState {
+  pending?: 'low-warning' | 'high-warning' | 'low-critical' | 'high-critical';
+  count: number;
+  active?: { id: string; violation: NonNullable<ChannelAlarmState['pending']> };
+  faultId?: string;
+}
+
 export interface BreachTracker {
-  tempWarning: number;
-  tempCritical: number;
-  phWarning: number;
-  phCritical: number;
-  anomalyWarning: number;
+  temperature: ChannelAlarmState;
+  ph: ChannelAlarmState;
+  anomaly: ChannelAlarmState;
 }
 
 export interface ManualOverrides {

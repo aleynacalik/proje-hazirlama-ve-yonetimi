@@ -8,7 +8,7 @@ import { ReactorVesselCard } from './components/ReactorVesselCard';
 import { ScenarioControlBar } from './components/ScenarioControlBar';
 import { TelemetryCharts } from './components/TelemetryCharts';
 import { Sidebar, TopBar, type ActiveTab } from './components/TopBar';
-import { DEFAULT_PROCESS_CONFIG } from './config/processConfig';
+import { DEFAULT_PROCESS_CONFIG, isValidAlarmConfig } from './config/processConfig';
 import { createInitialBreachTracker, evaluateAlarms } from './engine/alarmEngine';
 import {
   computeSummaryStats,
@@ -33,7 +33,8 @@ function loadSavedConfig(): ProcessConfig {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return DEFAULT_PROCESS_CONFIG;
-    return JSON.parse(raw) as ProcessConfig;
+    const saved = JSON.parse(raw) as ProcessConfig;
+    return isValidAlarmConfig(saved) ? saved : DEFAULT_PROCESS_CONFIG;
   } catch {
     return DEFAULT_PROCESS_CONFIG;
   }
@@ -58,7 +59,7 @@ export default function App() {
 
   const stepRef = useRef<number>(25);
   const trackerRef = useRef<BreachTracker>(tracker);
-  trackerRef.current = tracker;
+  const lastReadingRef = useRef(readings[readings.length - 1]);
 
   useEffect(() => {
     try {
@@ -72,25 +73,27 @@ export default function App() {
     if (!isRunning) return;
 
     const timer = window.setInterval(() => {
-      setReadings((prev) => {
-        const last = prev.length > 0 ? prev[prev.length - 1] : null;
-        const nextStep = stepRef.current++;
-        const nextReading = generateNextReading(nextStep, last, config, scenario, overrides);
+      const nextReading = generateNextReading(
+        stepRef.current++, lastReadingRef.current, config, scenario, overrides
+      );
+      lastReadingRef.current = nextReading;
+      const { nextTracker, newAlarms, clearedIds } = evaluateAlarms(nextReading, trackerRef.current, config);
+      trackerRef.current = nextTracker;
+      setTracker(nextTracker);
+      setReadings((prev) => [...prev, nextReading].slice(-MAX_HISTORY));
 
-        const { nextTracker, newAlarms } = evaluateAlarms(
-          nextReading,
-          trackerRef.current,
-          config
-        );
-        trackerRef.current = nextTracker;
-        setTracker(nextTracker);
-
-        if (newAlarms.length > 0) {
-          setAlarms((prevAlarms) => [...newAlarms, ...prevAlarms].slice(0, 60));
-        }
-
-        return [...prev, nextReading].slice(-MAX_HISTORY);
-      });
+      if (newAlarms.length || clearedIds.length) {
+        setAlarms((prev) => {
+          const events = [...newAlarms, ...prev.map((alarm): AlarmEvent =>
+            clearedIds.includes(alarm.id)
+              ? { ...alarm, clearedAt: nextReading.timestamp, clearedReason: 'measurement' }
+              : alarm
+          )];
+          const activeCount = events.filter((alarm) => alarm.clearedAt === undefined).length;
+          let closedRemaining = Math.max(0, 60 - activeCount);
+          return events.filter((alarm) => alarm.clearedAt === undefined || closedRemaining-- > 0);
+        });
+      }
     }, config.electrical.samplingIntervalMs);
 
     return () => window.clearInterval(timer);
@@ -112,6 +115,7 @@ export default function App() {
     const freshTracker = createInitialBreachTracker();
     stepRef.current = 25;
     trackerRef.current = freshTracker;
+    lastReadingRef.current = fresh[fresh.length - 1];
     setReadings(fresh);
     setAlarms([]);
     setTracker(freshTracker);
@@ -119,14 +123,27 @@ export default function App() {
 
   const handleConfigChange = (next: ProcessConfig) => {
     setConfig(next);
+    const alarmSettings = (value: ProcessConfig) => {
+      const { chemistry: c, electrical: e } = value;
+      return [
+        c.presetId, c.tempCriticalLow, c.tempMin, c.tempMax, c.tempCriticalHigh,
+        c.phCriticalLow, c.phMin, c.phMax, c.phCriticalHigh, e.consecutiveBreachLimit,
+        e.hysteresisTemp, e.hysteresisPh, e.samplingIntervalMs, value.mathModel.anomalyZThreshold,
+      ].join('|');
+    };
+    if (alarmSettings(next) !== alarmSettings(config)) {
+      const freshTracker = createInitialBreachTracker();
+      const changedAt = Date.now();
+      trackerRef.current = freshTracker;
+      setTracker(freshTracker);
+      setAlarms((prev) => prev.map((alarm) => alarm.clearedAt === undefined
+        ? { ...alarm, clearedAt: changedAt, clearedReason: 'configuration' }
+        : alarm));
+    }
     if (next.chemistry.presetId !== config.chemistry.presetId) {
       const fresh = generateInitialHistory(24, next, scenario);
-      const freshTracker = createInitialBreachTracker();
-      stepRef.current = 25;
-      trackerRef.current = freshTracker;
+      lastReadingRef.current = fresh[fresh.length - 1];
       setReadings(fresh);
-      setAlarms([]);
-      setTracker(freshTracker);
     }
   };
 

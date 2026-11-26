@@ -37,7 +37,7 @@ export const CHEMISTRY_PRESETS: ChemistryConfig[] = [
     phCriticalHigh: 9.0,
     baseYieldPct: 98.2,
     literatureNote:
-      'Deşarj standartlarına uygun pH (6.5–8.0) ve ortam sıcaklığı kontrolü için örnek literatür profili.',
+      'Ders demosu için varsayılan nötralizasyon profili. Eşikleri kimya ekibi doğrulayacaktır.',
   },
   {
     presetId: 'fermentation',
@@ -56,7 +56,7 @@ export const CHEMISTRY_PRESETS: ChemistryConfig[] = [
     phCriticalHigh: 4.8,
     baseYieldPct: 94.0,
     literatureNote:
-      'Dar sıcaklık bandı ve düşük pH gerektiren fermantasyon reaksiyonu için örnek profil.',
+      'Ders demosu için varsayılan fermantasyon profili. Eşikleri kimya ekibi doğrulayacaktır.',
   },
 ];
 
@@ -122,3 +122,22 @@ export const SCENARIO_META: Record<
     badgeClass: 'bg-[#FBE6E8] text-[#A81C28] border-[#E8AEB4]',
   },
 };
+
+export function isValidAlarmConfig(config: ProcessConfig): boolean {
+  const { chemistry: c, electrical: e, mathModel: m } = config;
+  return [
+    c.tempCriticalLow, c.tempMin, c.tempOptimal, c.tempMax, c.tempCriticalHigh,
+    c.phCriticalLow, c.phMin, c.phOptimal, c.phMax, c.phCriticalHigh,
+    e.hysteresisTemp, e.hysteresisPh, m.anomalyZThreshold,
+  ].every(Number.isFinite)
+    && c.tempCriticalLow < c.tempMin && c.tempMin <= c.tempOptimal
+    && c.tempOptimal <= c.tempMax && c.tempMin < c.tempMax && c.tempMax < c.tempCriticalHigh
+    && 0 <= c.phCriticalLow && c.phCriticalLow < c.phMin && c.phMin <= c.phOptimal
+    && c.phOptimal <= c.phMax && c.phMin < c.phMax && c.phMax < c.phCriticalHigh && c.phCriticalHigh <= 14
+    && e.hysteresisTemp >= 0 && e.hysteresisTemp * 2 < c.tempMax - c.tempMin
+    && e.hysteresisPh >= 0 && e.hysteresisPh * 2 < c.phMax - c.phMin
+    && Number.isInteger(e.consecutiveBreachLimit) && e.consecutiveBreachLimit >= 1
+    && Number.isInteger(e.samplingIntervalMs) && e.samplingIntervalMs >= 500
+    && e.samplingIntervalMs <= 2147483647
+    && m.anomalyZThreshold > 0;
+}
