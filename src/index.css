@@ -1,0 +1,74 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #eceae2;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #bfbba9;
+    border-radius: 2px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #9a9685;
+  }
+}
+
+.lab-surface {
+  background-color: #f2f1ec;
+  background-image: radial-gradient(#d5d2c7 0.75px, transparent 0.75px);
+  background-size: 20px 20px;
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+@keyframes agitator-pulse {
+  0%,
+  100% {
+    transform: scaleX(1);
+  }
+  50% {
+    transform: scaleX(0.32);
+  }
+}
+
+.agitator-blade {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: agitator-pulse 1.35s ease-in-out infinite;
+}
+
+.agitator-paused {
+  animation-play-state: paused;
+}
+
+input[type='range'].lab-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  background: #d8d5cb;
+  border-radius: 2px;
+  outline: none;
+}
+
+input[type='range'].lab-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 13px;
+  height: 13px;
+  border-radius: 2px;
+  background: #181816;
+  border: 1px solid #f2f1ec;
+  cursor: pointer;
+}
