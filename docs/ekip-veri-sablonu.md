@@ -16,12 +16,13 @@ Bu dosya, 5 disiplin arasındaki veri sözleşmesini tutar. Her ekip üyesi kend
   1. ...
 
 ## 2. Endüstri Mühendisliği Çıktısı
-- **Elektrik Birim Maliyeti:** `___ TL/kWh`
-- **Planlanmamış Duruş Maliyeti:** `___ TL/saat`
-- **Taban Proses Enerji Tüketimi:** `___ kW`
-- **Nominal Parti Çıktısı:** `___ kg`
-- **Hedef OEE (%):** `___ %`
-- **Süreç Akış Adımları:** Hammadde → ... → Kalite Kontrol → Çıktı
+- **Elektrik Birim Maliyeti:** `4,81 TL/kWh` (sanayi, tek zamanlı, vergi ve fonlar hariç)
+- **Planlanmamış Duruş Maliyeti:** `6500 TL/saat` (demo varsayımı)
+- **Taban Proses Enerji Tüketimi:** `42 kW` (demo varsayımı)
+- **Nominal Parti Çıktısı:** `1200 kg` (demo varsayımı)
+- **Hedef OEE (%):** `85 %` (proje hedefi)
+- **Süreç Akış Adımları:** Hammadde ve reaktif besleme → Reaktör → Enerji ve ısı yönetimi → Kalite kontrol ve parti çıkışı
+- Ayrıntı: [Endüstri maliyet ve OEE notu](endustri-maliyet-oee.md)
 
 ## 3. Matematik Ekibi Çıktısı
 - **Enerji Tüketimi İstatistiksel Modeli:**

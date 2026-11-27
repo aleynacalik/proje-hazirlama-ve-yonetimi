@@ -42,3 +42,5 @@ npm run preview
 Diğer disiplinlerdeki grup arkadaşlarının teslim edeceği parametrelerin özet listesi için [docs/ekip-veri-sablonu.md](docs/ekip-veri-sablonu.md) dosyasına bakın.
 
 [EEM alarm akışı, ayarlar ve demo kontrolü](docs/eem-alarm-akisi.md)
+
+[Endüstri maliyet, OEE ve süreç akışı notu](docs/endustri-maliyet-oee.md)
