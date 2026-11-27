@@ -5,15 +5,18 @@ Bu dosya, 5 disiplin arasındaki veri sözleşmesini tutar. Her ekip üyesi kend
 ---
 
 ## 1. Kimya Ekibi Çıktısı
-- **Seçilen Kimyasal Reaksiyon:** *(Örn: Biyodizel transesterifikasyonu / Esterleşme / Nötralizasyon)*
-- **İdeal Sıcaklık Aralığı:** Min `___ °C` | Optimum `___ °C` | Max `___ °C`
-- **Kritik Sıcaklık Sınırları:** Alt Kritik `___ °C` | Üst Kritik `___ °C`
-- **İdeal pH Aralığı:** Min `___` | Optimum `___` | Max `___`
-- **Kritik pH Sınırları:** Alt Kritik `___` | Üst Kritik `___`
-- **Teorik Maksimum Verim (%):** `___ %`
-- **Sapma Durumunda Kimyasal Etki (Yan ürün / verim kaybı):** `___`
-- **Akademik Kaynaklar (APA):**
-  1. ...
+- **Seçilen Kimyasal Reaksiyon:** *Aspergillus niger* ile glukozdan sitrik asit üretimi (`C6H12O6 + 1.5 O2 → C6H8O7 + 2 H2O`)
+- **İdeal Sıcaklık Aralığı:** Min `28 °C` | Optimum `30 °C` | Max `32 °C` (demo)
+- **Kritik Sıcaklık Sınırları:** Alt Kritik `25 °C` | Üst Kritik `37 °C` (demo)
+- **İdeal pH Aralığı:** Min `2,0` | Optimum `2,5` | Max `3,0` (üretim evresi; demo)
+- **Kritik pH Sınırları:** Alt Kritik `1,5` | Üst Kritik `4,0` (demo)
+- **Teorik Maksimum Verim (%):** `%100` teorik dönüşüm (~`1,067 g sitrik asit / g glukoz`); Panel baz verimi: `%80` (demo hedefi)
+- **Sapma Durumunda Kimyasal Etki (Yan ürün / verim kaybı):** Düşük sıcaklık reaksiyon hızını, yüksek sıcaklık enzim faaliyetini olumsuz etkileyebilir. Üretim evresinde düşük pH oksalik/glukonik asit gibi yan ürünleri baskılayabilir; etkiler suşa bağlıdır.
+- **Akademik Kaynaklar:**
+  1. *Citric acid bioproduction and downstream processing: Status, opportunities, and challenges* (2021), Bioresource Technology. https://doi.org/10.1016/j.biortech.2020.124426
+  2. *An overview of key industrial product citric acid production by Aspergillus niger and its application* (2025), Journal of Industrial Microbiology & Biotechnology. https://doi.org/10.1093/jimb/kuaf007
+  3. *Systems metabolic engineering for citric acid production by Aspergillus niger in the post-genomic era* (2019), Microbial Cell Factories. https://doi.org/10.1186/s12934-019-1064-6
+- Ayrıntı: [Kimya proses notu](kimya-proses-notu.md) | [Kimya ekip şablonu](kimya-ekip-sablonu.md)
 
 ## 2. Endüstri Mühendisliği Çıktısı
 - **Elektrik Birim Maliyeti:** `4,81 TL/kWh` (sanayi, tek zamanlı, vergi ve fonlar hariç)
