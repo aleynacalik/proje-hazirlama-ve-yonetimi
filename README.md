@@ -44,3 +44,8 @@ Diğer disiplinlerdeki grup arkadaşlarının teslim edeceği parametrelerin öz
 [EEM alarm akışı, ayarlar ve demo kontrolü](docs/eem-alarm-akisi.md)
 
 [Endüstri maliyet, OEE ve süreç akışı notu](docs/endustri-maliyet-oee.md)
+
+## Kimya katkısı
+
+- [Kimyasal proses, parametreler ve kaynaklar](docs/kimya-proses-notu.md)
+- [Kimya ekip veri şablonu](docs/kimya-ekip-sablonu.md)
