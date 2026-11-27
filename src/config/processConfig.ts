@@ -63,10 +63,10 @@ export const CHEMISTRY_PRESETS: ChemistryConfig[] = [
 export const DEFAULT_PROCESS_CONFIG: ProcessConfig = {
   chemistry: CHEMISTRY_PRESETS[0],
   industrial: {
-    energyUnitPriceTry: 4.85,
+    energyUnitPriceTry: 4.81,
     downtimeCostPerHourTry: 6500,
     nominalBatchOutputKg: 1200,
-    targetOeePct: 88,
+    targetOeePct: 85,
     baseEnergyKw: 42.0,
   },
   mathModel: {
